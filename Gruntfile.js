@@ -113,9 +113,6 @@ module.exports = function(grunt) {
 		},
 
 		watch: {
-			options: {
-				livereload: true
-			},
 			js: {
 				files: [ 'Gruntfile.js', 'js/reveal.js' ],
 				tasks: 'js'
@@ -128,17 +125,38 @@ module.exports = function(grunt) {
 				files: [ 'css/reveal.scss' ],
 				tasks: 'css-core'
 			},
-			html: {
-				files: [ 'index.html']
-			},
 			markdown: {
-				files: [ './*.md' ]
+				files: [ '*.md' ]
+			},
+			options: {
+				livereload: true
+			},
+			partials: {
+				files: ['slides/**/*.html'],
+				tasks: 'includes'
 			}
-		}
+		},
+		retire: {
+			js: ['js/reveal.js', 'lib/js/*.js', 'plugin/**/*.js'],
+			node: ['.'],
+			options: {}
+		},
 
+		includes: {
+		  files: {
+		    src: ['slides/index.html'],
+		    dest: '.', // Destination directory
+		    flatten: true,
+		    cwd: '.',
+		    options: {
+		      silent: true
+		    }
+		  }
+		}
 	});
 
 	// Dependencies
+	grunt.loadNpmTasks( 'grunt-includes' );
 	grunt.loadNpmTasks( 'grunt-contrib-qunit' );
 	grunt.loadNpmTasks( 'grunt-contrib-jshint' );
 	grunt.loadNpmTasks( 'grunt-contrib-cssmin' );
@@ -148,9 +166,10 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks( 'grunt-contrib-connect' );
 	grunt.loadNpmTasks( 'grunt-autoprefixer' );
 	grunt.loadNpmTasks( 'grunt-zip' );
+	grunt.loadNpmTasks( 'grunt-retire' );
 
 	// Default task
-	grunt.registerTask( 'default', [ 'css', 'js' ] );
+	grunt.registerTask( 'default', [ 'css', 'js', 'includes' ] );
 
 	// JS task
 	grunt.registerTask( 'js', [ 'jshint', 'uglify', 'qunit' ] );
@@ -168,7 +187,7 @@ module.exports = function(grunt) {
 	grunt.registerTask( 'package', [ 'default', 'zip' ] );
 
 	// Serve presentation locally
-	grunt.registerTask( 'serve', [ 'connect', 'watch' ] );
+	grunt.registerTask( 'serve', [ 'default', 'connect', 'watch' ] );
 
 	// Run tests
 	grunt.registerTask( 'test', [ 'jshint', 'qunit' ] );
